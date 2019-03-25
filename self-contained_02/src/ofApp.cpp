@@ -4,7 +4,7 @@
 void ofApp::setup() {
     ofSetColor(255);
     ofBackground(0);
-    ofSetVerticalSync(true);
+    //ofSetVerticalSync(true);
     ofSetLogLevel(OF_LOG_VERBOSE);
     ofSetFrameRate(60);
 
@@ -17,6 +17,7 @@ void ofApp::setup() {
     }
     models_dir.sort();
     load_model_index(0); // load first model
+
 }
 
 
@@ -34,13 +35,22 @@ void ofApp::load_model(string model_dir) {
         ofExit(1);
     }
 
+    img_in.allocate(input_shape[1], input_shape[0], OF_IMAGE_COLOR);
+    img_out.allocate(output_shape[1], output_shape[0], OF_IMAGE_COLOR);
+    fbo_comp.allocate(input_shape[1], input_shape[0], GL_RGB);
+    fbo_comp.begin();
+    ofClear(0);
+    fbo_comp.end();
+
     // init tensor for input. shape should be: {batch size, image height, image width, number of channels}
     // (ideally the SimpleModel graph loader would read this info from the graph_def and call this internally)
     model.init_inputs(tensorflow::DT_FLOAT, {1, input_shape[0], input_shape[1], 3});
 
     // load test image
     ofLogVerbose() << "loading test image";
+    img_in.allocate(input_shape[1], input_shape[0], OF_IMAGE_COLOR);
     img_in.load(ofFilePath::join(model_dir, "test_image.png"));
+    
 
     // allocating output image with correct dimensions and no alpha channel
     ofLogVerbose() << "allocating output image " << output_shape;
@@ -58,55 +68,89 @@ void ofApp::load_model_index(int index) {
 
 //--------------------------------------------------------------
 void ofApp::draw() {
+
+
     // run model on it
     if(model.is_loaded())
         model.run_image_to_image(img_in, img_out, input_range, output_range);
 
+    if(newPattern)
+    {
+        newPattern = false;
+        fbo_comp.begin();
+        ofClear(0);
+
+        for(int i = 0; i < 14; i++)
+        {
+            ofSetColor(ofColor::fromHsb(ofMap(i, 0, 13, 10, 245), 255, 255));
+            ofDrawCircle(ofRandom(80, 400), ofRandom(300, 400), 4);
+        }
+
+        for(int i = 0; i < 14; i++)
+        {
+            ofSetColor(ofColor::fromHsb(ofMap(i, 0, 13, 10, 245), 255, 255));
+            ofDrawCircle(ofRandom(80, 400), ofRandom(300, 400), 4);
+        }
+        fbo_comp.end();
+
+
+        fbo_comp.readToPixels(img_in.getPixels());
+
+        
+    }
+
     // DISPLAY STUFF
     ofSetColor(255);
     int x = 0;
-    img_in.draw(x, 0);
+    fbo_comp.draw(x, 0);
     x += img_in.getWidth();
-
+    ofPushMatrix();
+    //ofScale(2, 2);
     img_out.draw(x, 0);
     x += img_out.getWidth();
+    ofPopMatrix();
 
     stringstream str;
     str << ofGetFrameRate() << endl;
-    str << endl;
-    str << "Press number key to load model: " << endl;
-    for(int i=0; i<models_dir.size(); i++) {
-        auto marker = (i==cur_model_index) ? ">" : " ";
-        str << " " << (i+1) << " : " << marker << " " << models_dir.getName(i) << endl;
-    }
+    // str << endl;
+    // str << "Press number key to load model: " << endl;
+    // for(int i=0; i<models_dir.size(); i++) {
+    //     auto marker = (i==cur_model_index) ? ">" : " ";
+    //     str << " " << (i+1) << " : " << marker << " " << models_dir.getName(i) << endl;
+    // }
 
     ofDrawBitmapString(str.str(), x+20, 20);
 }
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key) {
-    switch(key) {
-    case '1':
-    case '2':
-    case '3':
-    case '4':
-    case '5':
-    case '6':
-    case '7':
-    case '8':
-    case '9':
-        load_model_index(key-'1');
-        break;
+    // switch(key) {
+    // case '1':
+    // case '2':
+    // case '3':
+    // case '4':
+    // case '5':
+    // case '6':
+    // case '7':
+    // case '8':
+    // case '9':
+    //     load_model_index(key-'1');
+    //     break;
+    // }
+
+    if(key == 'n')
+    {
+        newPattern = !newPattern;
     }
 }
 
 
 //--------------------------------------------------------------
 void ofApp::dragEvent(ofDragInfo dragInfo) {
-    if(dragInfo.files.empty()) return;
+    // if(dragInfo.files.empty()) return;
 
-    string file_path = dragInfo.files[0];
+    // string file_path = dragInfo.files[0];
 
-    // only PNGs work for some reason when Tensorflow is linked in
-    img_in.load(file_path);
+    // // only PNGs work for some reason when Tensorflow is linked in
+    // img_in.load(file_path);
 }

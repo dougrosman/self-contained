@@ -25,6 +25,8 @@ public:
     const string input_op_name = "generator/generator_inputs"; // name of op to feed input to
     const string output_op_name = "generator/generator_outputs"; // name of op to fetch output from
 
+    ofFbo fbo_comp;
+
     // images in and out of model
     ofFloatImage img_in; // input to the model
     ofFloatImage img_out; // output from the model
@@ -32,5 +34,7 @@ public:
     // model file management
     ofDirectory models_dir;    // data/models folder which contains subfolders for each model
     int cur_model_index = 0; // which model (i.e. folder) we're currently using
+
+    bool newPattern = false;
 		
 };

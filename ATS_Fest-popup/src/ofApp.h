@@ -41,8 +41,10 @@ public:
     
     ///// MODE STUFF /////
     
-    bool lerpMode = true;
-    bool randomMode = false;
+    bool lerpMode = false;
+    bool randomMode = true;
+    
+    bool debug = true;
     
     ////////// DOT LERPER STUFF //////////
     

@@ -125,6 +125,7 @@ void ofApp::load_model_index(int index) {
 
 //--------------------------------------------------------------
 void ofApp::draw() {
+    float t = ofGetElapsedTimef();
 
 
     // run model on it
@@ -153,12 +154,11 @@ void ofApp::draw() {
     }
     
     // LERP MODE
-    else if(lerpMode)
+    if(lerpMode)
     {
         fbo_comp.begin();
         ofClear(0);
         
-        float t = ofGetElapsedTimef();
         for(int i = 0; i < dotParticles[0].size(); i++)
         {
             
@@ -199,26 +199,57 @@ void ofApp::draw() {
 
     // DISPLAY STUFF
     ofPushMatrix();
-    ofScale(2, 2);
+    //ofScale(2, 2);
     ofSetColor(255);
     int x = 0;
-    fbo_comp.draw(x, 0);
-    x += img_in.getWidth();
+    if(debug)
+    {
+        fbo_comp.draw(x, 0);
+        x += img_in.getWidth();
+        stringstream str;
+        str << ofGetFrameRate() << endl;
+        str << "scaler: " << scaler << endl;
+        str << "xPos: " << xPos << endl;
+        str << "yPos: " << yPos << endl;
+        
+        
+        ofDrawBitmapString(str.str(), x+20, img_in.getHeight()+20);
+    }
     
     img_out.draw(x, 0);
     x += img_out.getWidth();
     ofPopMatrix();
 
-    stringstream str;
-    str << ofGetFrameRate() << endl;
+    
     // str << endl;
     // str << "Press number key to load model: " << endl;
     // for(int i=0; i<models_dir.size(); i++) {
     //     auto marker = (i==cur_model_index) ? ">" : " ";
     //     str << " " << (i+1) << " : " << marker << " " << models_dir.getName(i) << endl;
     // }
-
-    ofDrawBitmapString(str.str(), x+20, 20);
+   
+    
+    // Deal with incrementing k to the next dot arrangement
+    currInc = ofMap(sin(t/lerpRate), -1, 1, .0, 1.);
+    
+    if(currInc - prevInc > 0)
+    {
+        currDx = 1;
+    }
+    else
+    {
+        currDx = -1;
+    }
+    prevInc = currInc;
+    
+    if(currDx != prevDx)
+    {
+        k++;
+        prevFigure = currFigure;
+        currFigure = ofRandom(startIndex, endIndex);
+    }
+    
+    prevDx = currDx;
 }
 
 //--------------------------------------------------------------
@@ -277,6 +308,21 @@ void ofApp::keyPressed(int key) {
     else if (key == 'd')
     {
         xPos+=10;
+    }
+    // MODE SWITCHES
+    else if (key == 'r')
+    {
+        randomMode = true;
+        lerpMode = false;
+    }
+    else if (key == 'l')
+    {
+        randomMode = false;
+        lerpMode = true;
+    }
+    else if (key == '`')
+    {
+        debug = !debug;
     }
     
     

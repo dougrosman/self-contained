@@ -158,6 +158,8 @@ void ofApp::draw() {
     {
         fbo_comp.begin();
         ofClear(0);
+
+
         
         for(int i = 0; i < dotParticles[0].size(); i++)
         {
@@ -191,6 +193,7 @@ void ofApp::draw() {
             ofDrawCircle(resultX, resultY, 10.2);
             ofPopMatrix();
         }
+        
         fbo_comp.end();
         
         
@@ -214,6 +217,12 @@ void ofApp::draw() {
         
         
         ofDrawBitmapString(str.str(), x+20, img_in.getHeight()+20);
+
+            ofPushStyle();
+            ofSetColor(30, 30, 30, 150);
+            ofDrawRectangle(0, 0, 512, 512);
+            ofPopStyle();
+        
     }
     
     img_out.draw(x, 0);
@@ -242,11 +251,18 @@ void ofApp::draw() {
     }
     prevInc = currInc;
     
+    // after a lerp cycle
     if(currDx != prevDx)
     {
         k++;
         prevFigure = currFigure;
         currFigure = ofRandom(startIndex, endIndex);
+
+        //if(decrease)
+        //lerpRate+=.1;
+
+
+
     }
     
     prevDx = currDx;
@@ -345,6 +361,6 @@ void ofApp::dragEvent(ofDragInfo dragInfo) {
 
     // string file_path = dragInfo.files[0];
 
-    // // only PNGs work for some reason when Tensorflow is linked in
+    // //// only PNGs work for some reason when Tensorflow is linked in
     // img_in.load(file_path);
 }

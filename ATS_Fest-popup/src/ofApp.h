@@ -41,8 +41,8 @@ public:
     
     ///// MODE STUFF /////
     
-    bool lerpMode = false;
-    bool randomMode = true;
+    bool lerpMode = true;
+    bool randomMode = false;
     
     bool debug = true;
     
@@ -58,15 +58,15 @@ public:
     ofFbo fbo;
     ofPixels savePixels;
     
-    float scaler = 1;
-    float xPos = 0;
-    float yPos = 0;
+    float scaler = .75;
+    float xPos = -148;
+    float yPos = 60;
     
     bool record = false;
     
     // LERP STUFF
     int saveCount = 0;
-    float lerpRate = 0.5;
+    float lerpRate = 3;
     float currDx = 1;
     float prevDx = 1;
     int currFigure = 2;

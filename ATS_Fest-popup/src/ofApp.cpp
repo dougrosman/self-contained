@@ -168,7 +168,8 @@ void ofApp::draw() {
             float initY = dotParticles[prevFigure][i].pos.y;
             float endX = dotParticles[currFigure][i].pos.x;   // 1 2
             float endY = dotParticles[currFigure][i].pos.y;
-            float increment = ofMap(sin(t/lerpRate), -1, 1, 0., 1.);
+            //float increment = ofMap(sin(t/lerpRate), -1, 1, 0., 1.);
+            float increment = ofMap(figureScaler*sin(t/lerpRate), -figureScaler, figureScaler, 0., 1.);
             ofColor currColor = dotParticles[currFigure][i].color;
             
             float resultX = 0;
@@ -202,21 +203,25 @@ void ofApp::draw() {
 
     // DISPLAY STUFF
     ofPushMatrix();
-    //ofScale(2, 2);
+    ofTranslate(globalX, globalY);
+    ofScale(globalScale, globalScale);
     ofSetColor(255);
     int x = 0;
     if(debug)
     {
         fbo_comp.draw(x, 0);
         x += img_in.getWidth();
-        stringstream str;
-        str << ofGetFrameRate() << endl;
-        str << "scaler: " << scaler << endl;
-        str << "xPos: " << xPos << endl;
-        str << "yPos: " << yPos << endl;
+        //stringstream str;
+        //str << ofGetFrameRate() << endl;
+        //str << "scaler: " << scaler << endl;
+        //str << "xPos: " << xPos << endl;
+        //str << "yPos: " << yPos << endl;
+        //str << "globalX: " << globalX << endl;
+        //str << "globalY: " << globalY << endl;
+        //str << "globalScale: " << globalScale << endl;
         
         
-        ofDrawBitmapString(str.str(), x+20, img_in.getHeight()+20);
+        
 
             ofPushStyle();
             ofSetColor(30, 30, 30, 150);
@@ -239,7 +244,8 @@ void ofApp::draw() {
    
     
     // Deal with incrementing k to the next dot arrangement
-    currInc = ofMap(sin(t/lerpRate), -1, 1, .0, 1.);
+    //currInc = ofMap(sin(t/lerpRate), -1, 1, .0, 1.);
+    currInc = ofMap(figureScaler*sin(t/lerpRate), -figureScaler, figureScaler, .0, 1.);
     
     if(currInc - prevInc > 0)
     {
@@ -250,6 +256,11 @@ void ofApp::draw() {
         currDx = -1;
     }
     prevInc = currInc;
+
+    if(ofGetFrameNum() % 600 == 0)
+    {
+        changeSpeed = true;
+    }
     
     // after a lerp cycle
     if(currDx != prevDx)
@@ -258,14 +269,28 @@ void ofApp::draw() {
         prevFigure = currFigure;
         currFigure = ofRandom(startIndex, endIndex);
 
-        //if(decrease)
-        //lerpRate+=.1;
-
-
+        if(changeSpeed)
+        {
+            lerpRate = ofRandom(0.15, 2.5);
+            changeSpeed = false;
+            figureScaler = ofRandom(0.5, 2);
+        }
 
     }
     
     prevDx = currDx;
+    if(debug)
+    {
+        stringstream str;
+        str << ofGetFrameRate() << endl;
+        str << "scaler: " << scaler << endl;
+        str << "xPos: " << xPos << endl;
+        str << "yPos: " << yPos << endl;
+        str << "globalX: " << globalX << endl;
+        str << "globalY: " << globalY << endl;
+        str << "globalScale: " << globalScale << endl;
+        ofDrawBitmapString(str.str(), x+20, img_in.getHeight()+20);
+    }
 }
 
 //--------------------------------------------------------------
@@ -307,6 +332,15 @@ void ofApp::keyPressed(int key) {
     {
         scaler+=.03125;
     }
+
+    else if (key == '[' && scaler > .125)
+    {
+        globalScale-=.03125;
+    }
+    else if (key == ']')
+    {
+        globalScale+=.03125;
+    }
     
     else if (key == 'w')
     {
@@ -325,13 +359,32 @@ void ofApp::keyPressed(int key) {
     {
         xPos+=10;
     }
+
+    // GLOBAL MOVE
+    else if (key == 'i')
+    {
+        globalY-=10;
+    }
+    else if (key == 'k')
+    {
+        globalY+=10;
+    }
+    
+    else if (key == 'j')
+    {
+        globalX-=10;
+    }
+    else if (key == 'l')
+    {
+        globalX+=10;
+    }
     // MODE SWITCHES
     else if (key == 'r')
     {
         randomMode = true;
         lerpMode = false;
     }
-    else if (key == 'l')
+    else if (key == 'p')
     {
         randomMode = false;
         lerpMode = true;

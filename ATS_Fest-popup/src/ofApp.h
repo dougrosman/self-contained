@@ -44,7 +44,7 @@ public:
     bool lerpMode = true;
     bool randomMode = false;
     
-    bool debug = true;
+    bool debug = false;
     
     ////////// DOT LERPER STUFF //////////
     
@@ -66,7 +66,7 @@ public:
     
     // LERP STUFF
     int saveCount = 0;
-    float lerpRate = 3;
+    float lerpRate = .75;
     float currDx = 1;
     float prevDx = 1;
     int currFigure = 2;
@@ -79,5 +79,14 @@ public:
     int startIndex = 10;
     int endIndex = 30000;
     string saveName = "";
+
+    float globalX = 170;
+    float globalY = -210;
+
+    float globalScale = 3;
+
+    bool changeSpeed = true;
+
+    float figureScaler = 1;
 		
 };
